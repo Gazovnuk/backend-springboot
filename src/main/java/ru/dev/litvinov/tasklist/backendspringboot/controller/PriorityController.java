@@ -2,8 +2,10 @@ package ru.dev.litvinov.tasklist.backendspringboot.controller;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -71,5 +73,16 @@ public class PriorityController {
             return new ResponseEntity("id = " + id + " not found", HttpStatus.NOT_ACCEPTABLE);
         }
         return ResponseEntity.ok(priority);
+    }
+    @DeleteMapping("/id/{id}")
+    public ResponseEntity deleteById(@PathVariable Long id) {
+        Priority priority;
+        try {
+            priorityRepository.deleteById(id);
+        } catch (EmptyResultDataAccessException e) {
+            e.printStackTrace();
+            return new ResponseEntity("id = " + id + " not found", HttpStatus.NOT_ACCEPTABLE);
+        }
+        return ResponseEntity.ok(id + " was deleted");
     }
 }
