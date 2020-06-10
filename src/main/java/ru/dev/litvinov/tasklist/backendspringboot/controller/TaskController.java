@@ -5,7 +5,6 @@ import java.util.NoSuchElementException;
 import static org.springframework.http.HttpStatus.NOT_ACCEPTABLE;
 import static org.springframework.http.HttpStatus.OK;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,80 +14,81 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.dev.litvinov.tasklist.backendspringboot.entity.Category;
-import ru.dev.litvinov.tasklist.backendspringboot.entity.Priority;
-import ru.dev.litvinov.tasklist.backendspringboot.repo.PriorityRepository;
-import ru.dev.litvinov.tasklist.backendspringboot.search.CategorySearchValues;
-import ru.dev.litvinov.tasklist.backendspringboot.search.PrioritySearchValues;
+import ru.dev.litvinov.tasklist.backendspringboot.entity.Task;
+import ru.dev.litvinov.tasklist.backendspringboot.repo.TaskRepository;
+import ru.dev.litvinov.tasklist.backendspringboot.search.TaskSearchValues;
 
 /**
  * @author Litvinov Alexey
  * @link http://litvinov.dev.ru
  */
 @RestController
-@RequestMapping("/priority")
-public class PriorityController {
-    private PriorityRepository priorityRepository;
+@RequestMapping("/task")
+public class TaskController {
+    private TaskRepository taskRepository;
 
-    public PriorityController(final PriorityRepository priorityRepository) {
-        this.priorityRepository = priorityRepository;
+    public TaskController(final TaskRepository taskRepository) {
+        this.taskRepository = taskRepository;
     }
 
     @GetMapping("/all")
-    public List<Priority> findAll() {
-        return priorityRepository.findAllByOrderByIdAsc();
+    public List<Task> findAll() {
+        return taskRepository.findAllByOrderByTitleAsc();
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Priority> add(@RequestBody Priority priority) {
-        if (priority.getId() != null && priority.getId() != 0) {
+    public ResponseEntity<Task> add(@RequestBody Task task) {
+        if (task.getId() != null && task.getId() != 0) {
             return new ResponseEntity("redundant param: id must be null", NOT_ACCEPTABLE);
         }
-        if (priority.getTitle() == null || priority.getTitle().trim().length() == 0) {
+        if (task.getTitle() == null || task.getTitle().trim().length() == 0) {
             return new ResponseEntity("missed param: title", NOT_ACCEPTABLE);
         }
-
-        return ResponseEntity.ok(priorityRepository.save(priority));
+        return ResponseEntity.ok(taskRepository.save(task));
     }
 
     @PutMapping("update")
-    public ResponseEntity update(@RequestBody Priority priority) {
-        if (priority.getId() == null || priority.getId() == 0) {
+    public ResponseEntity update(@RequestBody Task task) {
+        if (task.getId() == null || task.getId() == 0) {
             return new ResponseEntity("missed param: id", NOT_ACCEPTABLE);
         }
-        if (priority.getTitle() == null || priority.getTitle().trim().length() == 0) {
+        if (task.getTitle() == null || task.getTitle().trim().length() == 0) {
             return new ResponseEntity("missed param: title", NOT_ACCEPTABLE);
-        }
-        if (priority.getColor() == null || priority.getColor().trim().length() == 0) {
-            return new ResponseEntity("missed param: color", NOT_ACCEPTABLE);
         }
         return new ResponseEntity(OK);
     }
 
     @GetMapping("/id/{id}")
-    public ResponseEntity<Priority> findById(@PathVariable Long id) {
-        Priority priority;
+    public ResponseEntity<Task> findById(@PathVariable Long id) {
+        Task task;
         try {
-            priority = priorityRepository.findById(id).get();
+            task = taskRepository.findById(id).get();
         } catch (NoSuchElementException e) {
             e.printStackTrace();
             return new ResponseEntity("id = " + id + " not found", NOT_ACCEPTABLE);
         }
-        return ResponseEntity.ok(priority);
+        return ResponseEntity.ok(task);
     }
+
     @DeleteMapping("/id/{id}")
     public ResponseEntity deleteById(@PathVariable Long id) {
-        Priority priority;
+        Task task;
         try {
-            priorityRepository.deleteById(id);
+            taskRepository.deleteById(id);
         } catch (EmptyResultDataAccessException e) {
             e.printStackTrace();
             return new ResponseEntity("id = " + id + " not found", NOT_ACCEPTABLE);
         }
         return ResponseEntity.ok(id + " was deleted");
     }
+
     @PostMapping("/search")
-    public ResponseEntity<List<Priority>> search(@RequestBody PrioritySearchValues prioritySearchValues) {
-        return ResponseEntity.ok(priorityRepository.findByTitle(prioritySearchValues.getText()));
+    public ResponseEntity<List<Task>> search(@RequestBody TaskSearchValues taskSearchValues) {
+        String text = taskSearchValues.getTitle() != null ? taskSearchValues.getTitle() : null;
+        Integer completed = taskSearchValues.getCompleted() != null ? taskSearchValues.getCompleted() : null;
+        Long priorityId = taskSearchValues.getPriorityId() != null ? taskSearchValues.getPriorityId() : null;
+        Long categoryId = taskSearchValues.getCategoryId() != null ? taskSearchValues.getCategoryId() : null;
+
+        return ResponseEntity.ok(taskRepository.findByParams(text, completed, priorityId, categoryId));
     }
 }

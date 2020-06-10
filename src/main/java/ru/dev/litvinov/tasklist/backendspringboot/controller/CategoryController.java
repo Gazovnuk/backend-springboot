@@ -2,6 +2,7 @@ package ru.dev.litvinov.tasklist.backendspringboot.controller;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import static org.springframework.http.HttpStatus.OK;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,14 +48,14 @@ public class CategoryController {
     }
 
     @PutMapping("update")
-    public ResponseEntity<Category> update(@RequestBody Category category) {
+    public ResponseEntity update(@RequestBody Category category) {
         if (category.getId() == null || category.getId() == 0) {
             return new ResponseEntity("missed param: id", HttpStatus.NOT_ACCEPTABLE);
         }
         if (category.getTitle() == null || category.getTitle().trim().length() == 0) {
             return new ResponseEntity("missed param: title", HttpStatus.NOT_ACCEPTABLE);
         }
-        return ResponseEntity.ok(categoryRepository.save(category));
+        return new ResponseEntity(OK);
     }
 
     @GetMapping("/id/{id}")
