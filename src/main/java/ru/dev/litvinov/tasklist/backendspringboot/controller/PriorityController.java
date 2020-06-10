@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.dev.litvinov.tasklist.backendspringboot.entity.Category;
 import ru.dev.litvinov.tasklist.backendspringboot.entity.Priority;
 import ru.dev.litvinov.tasklist.backendspringboot.repo.PriorityRepository;
 
@@ -30,11 +29,9 @@ public class PriorityController {
         this.priorityRepository = priorityRepository;
     }
 
-    @GetMapping("/test")
-    public List<Priority> test() {
-        List<Priority> list = priorityRepository.findAll();
-        System.out.println("list" + list);
-        return list;
+    @GetMapping("/all")
+    public List<Priority> findAll() {
+        return priorityRepository.findAllByOrderByIdAsc();
     }
 
     @PostMapping("/add")
