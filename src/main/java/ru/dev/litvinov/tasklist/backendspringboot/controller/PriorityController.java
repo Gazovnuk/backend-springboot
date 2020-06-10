@@ -2,6 +2,8 @@ package ru.dev.litvinov.tasklist.backendspringboot.controller;
 
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.dev.litvinov.tasklist.backendspringboot.entity.Priority;
@@ -25,5 +27,9 @@ public class PriorityController {
         List<Priority> list = priorityRepository.findAll();
         System.out.println("list" + list);
         return list;
+    }
+    @PostMapping("/add")
+    public Priority add(@RequestBody Priority priority) {
+        return priorityRepository.save(priority);
     }
 }
