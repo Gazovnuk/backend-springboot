@@ -13,8 +13,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.dev.litvinov.tasklist.backendspringboot.entity.Category;
 import ru.dev.litvinov.tasklist.backendspringboot.entity.Priority;
 import ru.dev.litvinov.tasklist.backendspringboot.repo.PriorityRepository;
+import ru.dev.litvinov.tasklist.backendspringboot.search.CategorySearchValues;
+import ru.dev.litvinov.tasklist.backendspringboot.search.PrioritySearchValues;
 
 /**
  * @author Litvinov Alexey
@@ -81,5 +84,9 @@ public class PriorityController {
             return new ResponseEntity("id = " + id + " not found", HttpStatus.NOT_ACCEPTABLE);
         }
         return ResponseEntity.ok(id + " was deleted");
+    }
+    @PostMapping("/search")
+    public ResponseEntity<List<Priority>> search(@RequestBody PrioritySearchValues prioritySearchValues) {
+        return ResponseEntity.ok(priorityRepository.findByTitle(prioritySearchValues.getText()));
     }
 }
